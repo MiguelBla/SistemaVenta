@@ -1,0 +1,171 @@
+﻿@model ML.VentaDesglose
+@{
+    ViewBag.Title = "Formulario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h2>Carrito de compras</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h5>¡Bienvenido @Model.venta.cliente.Nombre @Model.venta.cliente.ApellidoPaterno @Model.venta.cliente.ApellidoMaterno !</h5>
+        </div>
+    </div>
+    <div id="IdCliente">
+        @Html.HiddenFor(model => model.venta.cliente.IdCliente)
+    </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-12 mt-3">
+            @if (Model.producto.Productos != null)
+            {
+                <table class=" table table-hover table-bordered" id="tablaProductos">
+                    <thead>
+                        <tr>
+                            <td scope="col">Nombre</td>
+                            <td scope="col">Descripcion</td>
+                            <td scope="col">Precio</td>
+                            <td scope="col">Cantidad</td>
+                            <td scope="col">Agregar</td>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (ML.Producto producto in Model.producto.Productos)
+                        {
+                            <tr>
+                                <td>@producto.Nombre</td>
+                                <td>@producto.Descripcion</td>
+                                <td>@producto.Costo</td>
+                                <td>
+                                    <input type="number" name="Productos[@producto.IdProducto].Cantidad" min="1" value="1"
+                                           max="@producto.Stock" class="form-control" data-precio="@producto.Costo" />
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="seleccionar-producto" data-id="@producto.IdProducto" value="true" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-danger" role="alert">
+                    Ocurrió un Error al traer los datos.
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mt-3">
+            <h4>Total: $<span id="totalCarrito">0</span></h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-2 mt-3">
+            <button type="button" id="guardarCarrito" class="btn btn-outline-secondary">Guardar</button>
+        </div>
+        <div class="col-2 mt-3">
+            @Html.ActionLink("Cancelar", "GetAll", "Venta", new { @class = "btn btn-outline-danger" })
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-3.7.0.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tablaProductos').on('change', 'input[type="number"], input[type="checkbox"]', function () {
+            actualizarTotal();
+        });
+        actualizarTotal();
+        $('#guardarCarrito').click(function () {
+    var productosSeleccionados = [];
+    var totalCarrito = 0;
+    var idCliente = $('#IdCliente input').val();  
+
+    
+    $('#tablaProductos tbody tr').each(function () {
+        var idProducto = $(this).find('input[type="checkbox"]').data('id');
+        var cantidad = $(this).find('input[type="number"]').val();
+        var costo = $(this).find('td:nth-child(3)').text();
+        var seleccionado = $(this).find('input[type="checkbox"]').prop('checked');
+
+        if (seleccionado) {
+            productosSeleccionados.push({
+                producto: {
+                    IdProducto: idProducto,
+                    Costo: parseFloat(costo)
+                },
+                Cantidad: parseInt(cantidad)
+            });
+            totalCarrito += parseFloat(costo) * parseInt(cantidad);  
+        }
+    });
+
+    
+    var jsonData = {
+        VentaDesgloce: {
+            Venta: {
+                Cliente: {
+                    IdCliente: parseInt(idCliente)
+                },
+                Total: totalCarrito
+            },
+            VentaDesgloses: productosSeleccionados
+        }
+    };
+
+    
+    if (productosSeleccionados.length > 0) {
+        $.ajax({
+            url: '@Url.Action("GuardarCompra", "Venta")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(jsonData),  
+            success: function (result) {
+                if (result.Correct) {
+                    alert('Compra guardada con éxito');
+                } else {
+                    alert('Ocurrió un error al guardar la compra');
+                }
+            },
+            error: function () {
+                alert('Error en la comunicación con el servidor');
+            }
+        });
+    } else {
+        alert('Por favor, seleccione al menos un producto');
+    }
+});
+
+
+    });
+
+    function actualizarTotal() {
+        var total = 0;
+        $('#tablaProductos tbody tr').each(function () {
+            var precio = parseFloat($(this).find('input[type="number"]').data('precio'));
+            var cantidad = parseInt($(this).find('input[type="number"]').val());
+            var max = parseInt($(this).find('input[type="number"]').attr('max'));
+            var seleccionado = $(this).find('input[type="checkbox"]').prop('checked');
+
+            if (cantidad > max) {
+                cantidad = max;
+                $(this).find('input[type="number"]').val(cantidad);
+            }
+
+            if (seleccionado) {
+                total += precio * cantidad;
+            }
+        });
+        $('#totalCarrito').text(total.toFixed(2));
+    }
+
+</script>

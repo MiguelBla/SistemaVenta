@@ -1,0 +1,85 @@
+﻿@model  ML.Producto
+@{
+    ViewBag.Title = "Formulario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container">
+    @using (Html.BeginForm("Formulario", "Producto", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="container">
+            <div class="row">
+                <div class="col-4 mt-3">
+                    @Html.HiddenFor(model => model.IdProducto)
+                    @Html.LabelFor(model => model.Nombre)
+                    @Html.TextBoxFor(model => model.Nombre, new { @id = "Nombre", @class = "form-control", @placeholder = "Nombre", @required = "required", @onkeypress = "return SoloLetras(event, 'lblNombreError')" })
+                    @Html.ValidationMessageFor(model => model.Nombre, "", new { @id = "lblNombreError", @class = "text-danger" })
+                </div>
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.Descripcion)
+                    @Html.TextAreaFor(model => model.Descripcion, new { @id = "Descripcion", @class = "form-control", @placeholder = "Descripcion", @required = "required" })
+                    @Html.ValidationMessageFor(model => model.Descripcion, "", new { @id = "lblDescripcionError", @class = "text-danger" })
+                </div>
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.Stock)
+                    @Html.TextBoxFor(model => model.Stock, new { @id = "Stock", @class = "form-control", @placeholder = "cantidad en stock", @required = "required", @onkeypress = "return SoloNumeros(event, 'lblStockError')" })
+                    @Html.ValidationMessageFor(model => model.Stock, "", new { @id = "lblStockError", @class = "text-danger" })
+                </div>
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.Costo)
+                    @Html.TextBoxFor(model => model.Costo, new { @id = "Costo", @class = "form-control", @placeholder = "costo", @required = "required", @onkeypress = "return ValidarCosto(event, 'lblCostoError')" })
+                    @Html.ValidationMessageFor(model => model.Costo, "", new { @id = "lblCostoError", @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-2 mt-3">
+                    <button type="submit" class="btn btn-outline-secondary">Guardar</button>
+                </div>
+                <div class="col-2 mt-3">
+                    @Html.ActionLink("Cancelar", "GetAll", "Producto", new { @class = "btn btn-outline-danger" })
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function SoloLetras(event, idLabelError) {
+        let teclaPresionada = event.key;
+        let regex = /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]$/;
+        if (regex.test(teclaPresionada)) {
+            $("#" + idLabelError).hide();
+            return true;
+        } else {
+            $("#" + idLabelError).show();
+            $("#" + idLabelError).text('Solo se permiten letras');
+            return false;
+        }
+    }
+
+    function SoloNumeros(event, idLabelError) {
+        let teclaPresionada = event.key;
+        let regex = /^[0-9]*$/;
+        if (regex.test(teclaPresionada)) {
+            $("#" + idLabelError).hide();
+            return true;
+        } else {
+            $("#" + idLabelError).show();
+            $("#" + idLabelError).text('Solo se permiten números');
+            return false;
+        }
+    }
+
+    function ValidarCosto(event, idLabelError) {
+        let teclaPresionada = event.key;
+        let regex = /^[0-9.]*$/;
+        if (regex.test(teclaPresionada)) {
+            $("#" + idLabelError).hide();
+            return true;
+        } else {
+            $("#" + idLabelError).show();
+            $("#" + idLabelError).text('Solo se permiten números y el carácter decimal (.)');
+            return false;
+        }
+    }
+</script>

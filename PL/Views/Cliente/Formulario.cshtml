@@ -1,0 +1,111 @@
+﻿@model  ML.Cliente
+@{
+    ViewBag.Title = "Formulario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container">
+    @using (Html.BeginForm("Formulario", "Cliente", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="container">
+            <div class="row">
+
+                <div class="col-4 mt-3">
+                    @Html.HiddenFor(model => model.IdCliente)
+                    @Html.LabelFor(model => model.Nombre)
+                    @Html.TextBoxFor(model => model.Nombre, new { @id = "Nombre", @class = "form-control", @placeholder = "Nombre", @required = "required", @onkeypress = "return SoloLetras(event, 'lblNombreError')" })
+                    @Html.ValidationMessageFor(model => model.Nombre, "", new { @id = "lblNombreError", @class = "text-danger" })
+                </div>
+
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.ApellidoPaterno)
+                    @Html.TextBoxFor(model => model.ApellidoPaterno, new { @id = "ApellidoPaterno", @class = "form-control", @placeholder = "Apellido Paterno", @required = "required", @onkeypress = "return SoloLetras(event, 'lblApellidoPaternoError')" })
+                    @Html.ValidationMessageFor(model => model.ApellidoPaterno, "", new { @id = "lblApellidoPaternoError", @class = "text-danger" })
+                </div>
+
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.ApellidoMaterno)
+                    @Html.TextBoxFor(model => model.ApellidoMaterno, new { @id = "ApellidoMaterno", @class = "form-control", @placeholder = "Apellido Materno", @required = "required", @onkeypress = "return SoloLetras(event, 'lblApellidoMaternoError')" })
+                    @Html.ValidationMessageFor(model => model.ApellidoMaterno, "", new { @id = "lblApellidoMaternoError", @class = "text-danger" })
+                </div>
+
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.Telefono)
+                    @Html.TextBoxFor(model => model.Telefono, new { @id = "Telefono", @class = "form-control", @placeholder = "Teléfono", @required = "required", @onkeypress = "return SoloNumeros(event, 'lblTelefonoError')" })
+                    @Html.ValidationMessageFor(model => model.Telefono, "", new { @id = "lblTelefonoError", @class = "text-danger" })
+                </div>
+
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.Correo)
+                    @Html.TextBoxFor(model => model.Correo, new { @id = "Correo", @class = "form-control", @placeholder = "ejemplo@outlook.com", @required = "required" ,@onblur = "ValidarCorreo('Correo', 'lblCorreoError')" })
+                    @Html.ValidationMessageFor(model => model.Correo, "", new { @id = "lblCorreoError", @class = "text-danger" })
+                </div>
+
+                <div class="col-4 mt-3">
+                    @Html.LabelFor(model => model.Direccion)
+                    @Html.TextAreaFor(model => model.Direccion, new { @id = "Direccion", @class = "form-control", @placeholder = "Dirección", @required = "required" })
+                    @Html.ValidationMessageFor(model => model.Direccion, "", new { @id = "lblDireccionError", @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-2 mt-3">
+                    <button type="submit" class="btn btn-outline-secondary">Guardar</button>
+                </div>
+                <div class="col-2 mt-3">
+                    @Html.ActionLink("Cancelar", "GetAll", "Cliente", new { @class = "btn btn-outline-danger" })
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script src="~/Scripts/jquery-3.7.0.js"></script>
+<script>
+    function SoloLetras(event, idLabelError) {
+        let teclaPresionada = event.key;
+        let regex = /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]$/;
+        if (regex.test(teclaPresionada)) {
+            $("#" + idLabelError).hide();
+            return true;
+        } else {
+            $("#" + idLabelError).show();
+            $("#" + idLabelError).text('Solo se permiten letras');
+            return false;
+        }
+    }
+
+    function SoloNumeros(event, idLabelError) {
+        let teclaPresionada = event.key;
+        let regex = /^[0-9]*$/;
+        if (regex.test(teclaPresionada)) {
+            $("#" + idLabelError).hide();
+            return true;
+        } else {
+            $("#" + idLabelError).show();
+            $("#" + idLabelError).text('Solo se permiten números');
+            return false;
+        }
+    }
+
+    function ValidarCorreo(IdInput, idLabelError) {
+    let emailElement = $("#" + IdInput);
+    let errorElement = $("#" + idLabelError);
+
+    if (emailElement.length === 0 || errorElement.length === 0) {
+        console.error("No se encontró el elemento con el ID proporcionado.");
+        return;
+    }
+    let email = emailElement.val();
+    let regex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (regex.test(email)) {
+        errorElement.hide();
+        emailElement.css("border", "2px solid green");
+    } else {
+        errorElement.show();
+        errorElement.text('El correo no es válido');
+        emailElement.css("border", "2px solid red");
+    }
+}
+</script>
+
+
